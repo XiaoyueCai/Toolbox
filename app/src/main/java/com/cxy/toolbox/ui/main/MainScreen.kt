@@ -1,6 +1,7 @@
 package com.cxy.toolbox.ui.main
 
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,6 +26,8 @@ import com.cxy.toolbox.ui.requestPermissions
 import com.cxy.toolbox.ui.theme.ToolboxTheme
 import com.cxy.toolbox.utils.Utils
 
+private const val TAG = "MainScreen"
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
@@ -47,7 +50,7 @@ fun MainScreen() {
 
 @Composable
 private fun ScrollContent(innerPadding: PaddingValues) {
-    Column (
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(innerPadding),
@@ -68,7 +71,7 @@ private fun ScrollContent(innerPadding: PaddingValues) {
 
         ReqPermissionsButton(
             modifier = Modifier
-                .align(Alignment.CenterHorizontally)
+                .align(Alignment.CenterHorizontally),
         )
 
         Button(

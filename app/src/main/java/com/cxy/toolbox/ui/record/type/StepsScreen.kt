@@ -1,6 +1,7 @@
 package com.cxy.toolbox.ui.record.type
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
@@ -22,28 +25,43 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.records.StepsRecord
 import com.cxy.toolbox.ui.AdvancedTimePicker
 import com.cxy.toolbox.ui.DateRangePickerModal
+import com.cxy.toolbox.ui.days
 import com.cxy.toolbox.ui.getActivity
 import com.cxy.toolbox.ui.pojo.AppRecordType
 import com.cxy.toolbox.ui.pojo.HourMinute
+import com.cxy.toolbox.ui.requestPermissions
 import com.cxy.toolbox.ui.theme.ToolboxTheme
 import com.cxy.toolbox.utils.Utils
+import kotlinx.coroutines.launch
+import java.time.Duration
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import kotlin.random.Random
+
+private const val TAG = "StepsScreen"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -104,6 +122,14 @@ private fun ScrollContent(
             HourMinute(0, 30)
         )
     }
+
+    var dailyRecordCount by rememberSaveable { mutableStateOf("10") }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val numericRegex by remember { mutableStateOf(Regex("[0-9]+")) }
+
+    var minSteps by rememberSaveable { mutableStateOf("10") }
+
+    var maxSteps by rememberSaveable { mutableStateOf("500") }
 
     LazyColumn(
         modifier = Modifier
@@ -240,9 +266,183 @@ private fun ScrollContent(
                 )
             }
         }
+
+        item {
+            TextField(
+                value = dailyRecordCount,
+                onValueChange = { newText ->
+                    dailyRecordCount = numericRegex.find(newText)?.value ?: ""
+                },
+                label = {
+                    Text("Daily Record Count")
+                },
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done,
+                    keyboardType = KeyboardType.Number,
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        keyboardController?.hide()
+                    }
+                ),
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 8.dp)
+                    .fillMaxWidth()
+                    .border(
+                        width = 1.dp,
+                        color = Color.Gray,
+                        shape = RoundedCornerShape(4.dp)
+                    )
+            )
+        }
+
+        item {
+            TextField(
+                value = minSteps,
+                onValueChange = { newText ->
+                    minSteps = numericRegex.find(newText)?.value ?: ""
+                },
+                label = {
+                    Text("Min Steps")
+                },
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done,
+                    keyboardType = KeyboardType.Number,
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        keyboardController?.hide()
+                    }
+                ),
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 8.dp)
+                    .fillMaxWidth()
+                    .border(
+                        width = 1.dp,
+                        color = Color.Gray,
+                        shape = RoundedCornerShape(4.dp)
+                    )
+            )
+        }
+
+        item {
+            TextField(
+                value = maxSteps,
+                onValueChange = { newText ->
+                    maxSteps = numericRegex.find(newText)?.value ?: ""
+                },
+                label = {
+                    Text("Max Steps")
+                },
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done,
+                    keyboardType = KeyboardType.Number,
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        keyboardController?.hide()
+                    }
+                ),
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 8.dp)
+                    .fillMaxWidth()
+                    .border(
+                        width = 1.dp,
+                        color = Color.Gray,
+                        shape = RoundedCornerShape(4.dp)
+                    )
+            )
+        }
+
+        item {
+            val coroutineScope = rememberCoroutineScope()
+            val context = LocalContext.current
+            val onPermissionsResult = { granted: Boolean ->
+                if (granted) {
+                    coroutineScope.launch { // Launch a coroutine in the lifecycleScope
+                        val healthConnectClient = HealthConnectClient.getOrCreate(context)
+                        if (selectedDateRange.first != null && selectedDateRange.second != null) {
+                            insertSteps(
+                                healthConnectClient,
+                                startTime = selectedDateRange.first!!,
+                                endTime = selectedDateRange.second!!,
+                                minDuration = selectedMinTime,
+                                maxDuration = selectedMaxTime,
+                                dailyRecordCount = dailyRecordCount.toInt(),
+                                minSteps = minSteps.toInt(),
+                                maxSteps = maxSteps.toInt()
+                            )
+                        }
+                    }
+                }
+            }
+            val requestPermissionsClick = requestPermissions(onPermissionsResult)
+
+            Button(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 8.dp)
+                    .fillMaxWidth(),
+                onClick = requestPermissionsClick,
+            ) {
+                Text("Save")
+            }
+        }
     }
 }
 
+suspend fun insertSteps(
+    healthConnectClient: HealthConnectClient,
+    startTime: Long,
+    endTime: Long,
+    minDuration: HourMinute,
+    maxDuration: HourMinute,
+    dailyRecordCount: Int,
+    minSteps: Int,
+    maxSteps: Int,
+) {
+    try {
+        val zoneOffset = OffsetDateTime.now().offset
+        val startDateTime = Utils.millisToLocalDateTime(startTime)
+        val endDateTime = Utils.millisToLocalDateTime(endTime)
+        val records = mutableListOf<StepsRecord>()
+        val minDurationMillis =
+            Duration.ofHours(minDuration.hour.toLong()).plusMinutes(minDuration.minute.toLong())
+                .toMillis()
+        val maxDurationMillis =
+            Duration.ofHours(maxDuration.hour.toLong()).plusMinutes(maxDuration.minute.toLong())
+                .toMillis()
+        val currentDateTime = LocalDateTime.now()
+        for (i in 0..startDateTime.toLocalDate().days(endDateTime.toLocalDate())) {
+            val dateTime = startDateTime.plusDays(i.toLong())
+            var end = dateTime.withHour(Random.nextInt(20, 24))
+                .withMinute(Random.nextInt(0, 60))
+                .toInstant(zoneOffset)
+            if (end.isAfter(currentDateTime.toInstant(zoneOffset))) {
+                end = currentDateTime.toInstant(zoneOffset)
+            }
+            for (j in 0 until dailyRecordCount) {
+                val start = end.minusMillis(Random.nextLong(minDurationMillis, maxDurationMillis))
+                val stepsRecord = StepsRecord(
+                    count = Random.nextInt(minSteps, maxSteps + 1).toLong(),
+                    startTime = start,
+                    endTime = end,
+                    startZoneOffset = zoneOffset,
+                    endZoneOffset = zoneOffset,
+                )
+                records.add(stepsRecord)
+                end = start
+            }
+        }
+        Log.d(TAG, "insertSteps: $records")
+        healthConnectClient.insertRecords(records)
+    } catch (e: Exception) {
+        Log.e(TAG, "insertSteps: ", e)
+    }
+}
 
 @Preview(showBackground = true, device = Devices.PIXEL)
 @Composable

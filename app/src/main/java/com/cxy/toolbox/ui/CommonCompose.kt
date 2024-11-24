@@ -1,6 +1,7 @@
 package com.cxy.toolbox.ui
 
 import android.content.Context
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -58,6 +59,8 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
+private const val TAG = "CommonCompose"
+
 @Composable
 fun ComposableLifecycle(
     lifeCycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
@@ -93,8 +96,8 @@ fun requestPermissions(
     val requestPermissionActivityContract =
         PermissionController.createRequestPermissionResultContract()
     val requestPermissions =
-        rememberLauncherForActivityResult(requestPermissionActivityContract) { granted ->
-            if (granted.containsAll(permissions)) {
+        rememberLauncherForActivityResult(requestPermissionActivityContract) { grantedPermissions ->
+            if (grantedPermissions.containsAll(permissions)) {
                 // Permissions successfully granted
                 onPermissionsResult(true)
             } else {
