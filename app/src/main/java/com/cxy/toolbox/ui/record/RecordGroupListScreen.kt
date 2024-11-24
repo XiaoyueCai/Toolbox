@@ -1,18 +1,17 @@
-package com.cxy.toolbox.ui.main
+package com.cxy.toolbox.ui.record
 
 import android.content.Context
-import androidx.activity.compose.rememberLauncherForActivityResult
+import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -21,25 +20,20 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.health.connect.client.HealthConnectClient
-import androidx.health.connect.client.PermissionController
-import androidx.health.connect.client.permission.HealthPermission
-import androidx.health.connect.client.records.StepsRecord
+import com.cxy.toolbox.RecordGroupActivity
+import com.cxy.toolbox.RecordGroupActivity.Companion.EXTRA_RECORD_GROUP
 import com.cxy.toolbox.ui.getActivity
+import com.cxy.toolbox.ui.pojo.AppRecordGroup.Companion.GROUP_LIST
 import com.cxy.toolbox.ui.theme.ToolboxTheme
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InsertScreen() {
+fun RecordGroupListScreen() {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -60,6 +54,7 @@ fun InsertScreen() {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
                         )
                     }
                 }
@@ -72,23 +67,31 @@ fun InsertScreen() {
 
 @Composable
 private fun ScrollContent(innerPadding: PaddingValues) {
-    LazyColumn (
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize(),
         contentPadding = innerPadding,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        item {
-            Text(
-                text = "Activity",
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable {
+        GROUP_LIST.map {
+            item {
+                val context = LocalContext.current
 
-                    }
-                    .padding(horizontal = 16.dp)
-                    .padding(vertical = 12.dp)
-            )
+                Text(
+                    text = it.name,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable {
+                            context.startActivity(
+                                Intent(context, RecordGroupActivity::class.java)
+                                    .apply {
+                                        putExtra(EXTRA_RECORD_GROUP, it)
+                                    }
+                            )
+                        }
+                        .padding(horizontal = 16.dp, vertical = 16.dp)
+                )
+                HorizontalDivider()
+            }
         }
     }
 }
@@ -97,6 +100,6 @@ private fun ScrollContent(innerPadding: PaddingValues) {
 @Composable
 fun InsertScreenPreview() {
     ToolboxTheme {
-        InsertScreen()
+        RecordGroupListScreen()
     }
 }

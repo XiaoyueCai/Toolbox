@@ -4,6 +4,10 @@
 
     <uses-permission android:name="android.permission.health.READ_STEPS" />
     <uses-permission android:name="android.permission.health.WRITE_STEPS" />
+    <uses-permission android:name="android.permission.health.READ_SLEEP" />
+    <uses-permission android:name="android.permission.health.WRITE_SLEEP" />
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE_VARIABILITY" />
+    <uses-permission android:name="android.permission.health.WRITE_HEART_RATE_VARIABILITY" />
 
     <queries>
 
@@ -35,7 +39,15 @@
         </activity>
 
         <activity
-            android:name=".InsertActivity"
+            android:name=".RecordGroupListActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".RecordGroupActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".RecordTypeActivity"
             android:exported="false" />
 
         <activity

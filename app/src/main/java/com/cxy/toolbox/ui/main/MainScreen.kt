@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.cxy.toolbox.InsertActivity
+import com.cxy.toolbox.RecordGroupListActivity
 import com.cxy.toolbox.ui.requestPermissions
 import com.cxy.toolbox.ui.theme.ToolboxTheme
 import com.cxy.toolbox.utils.Utils
@@ -73,7 +73,7 @@ private fun ScrollContent(innerPadding: PaddingValues) {
 
         Button(
             onClick = {
-                context.startActivity(Intent(context, InsertActivity::class.java))
+                context.startActivity(Intent(context, RecordGroupListActivity::class.java))
             },
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
