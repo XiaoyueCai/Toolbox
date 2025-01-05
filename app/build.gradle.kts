@@ -4,6 +4,10 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.parcelize)
 }
+val customGradleFile = project.file("custom.gradle")
+if (customGradleFile.exists()) {
+    apply(from = customGradleFile)
+}
 
 android {
     namespace = "com.cxy.toolbox"
