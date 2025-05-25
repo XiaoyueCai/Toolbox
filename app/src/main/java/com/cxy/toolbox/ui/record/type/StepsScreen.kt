@@ -2,6 +2,7 @@ package com.cxy.toolbox.ui.record.type
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -366,6 +367,7 @@ private fun ScrollContent(
                         val healthConnectClient = HealthConnectClient.getOrCreate(context)
                         if (selectedDateRange.first != null && selectedDateRange.second != null) {
                             insertSteps(
+                                context,
                                 healthConnectClient,
                                 startTime = selectedDateRange.first!!,
                                 endTime = selectedDateRange.second!!,
@@ -395,6 +397,7 @@ private fun ScrollContent(
 }
 
 suspend fun insertSteps(
+    context: Context,
     healthConnectClient: HealthConnectClient,
     startTime: Long,
     endTime: Long,
@@ -438,7 +441,10 @@ suspend fun insertSteps(
             }
         }
         Log.d(TAG, "insertSteps: $records")
-        healthConnectClient.insertRecords(records)
+        val response = healthConnectClient.insertRecords(records)
+        if (response.recordIdsList.isNotEmpty()) {
+            Toast.makeText(context, "Steps inserted", Toast.LENGTH_SHORT).show()
+        }
     } catch (e: Exception) {
         Log.e(TAG, "insertSteps: ", e)
     }
