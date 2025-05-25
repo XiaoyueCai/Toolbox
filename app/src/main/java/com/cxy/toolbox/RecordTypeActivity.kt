@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.core.content.IntentCompat
 import com.cxy.toolbox.ui.ToDoScreen
 import com.cxy.toolbox.ui.pojo.AppRecordType
+import com.cxy.toolbox.ui.record.type.HRVScreen
 import com.cxy.toolbox.ui.record.type.StepsScreen
 import com.cxy.toolbox.ui.theme.ToolboxTheme
 
@@ -21,6 +22,7 @@ class RecordTypeActivity : ComponentActivity() {
             ToolboxTheme {
                 when (type) {
                     AppRecordType.TYPE_STEPS -> StepsScreen(type)
+                    AppRecordType.TYPE_HEART_RATE_VARIABILITY -> HRVScreen(type)
                     else -> ToDoScreen()
                 }
             }

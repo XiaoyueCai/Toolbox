@@ -11,6 +11,6 @@ data class AppRecordType(val name: String) : Parcelable {
 
         val TYPE_SLEEP_SESSION = AppRecordType("Sleep Session")
 
-        val TYPE_HEART_RATE_VARIABILITY = AppRecordType("Heart Rate Variability RMSSD")
+        val TYPE_HEART_RATE_VARIABILITY = AppRecordType("HRV")
     }
 }
