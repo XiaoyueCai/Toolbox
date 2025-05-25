@@ -42,6 +42,16 @@ android {
     buildFeatures {
         compose = true
     }
+
+    applicationVariants.all {
+        val variant = this
+        variant.outputs
+            .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
+            .forEach { output ->
+                val outputFileName = "Toolbox_${variant.versionName}_${variant.versionCode}-${variant.baseName}.apk"
+                output.outputFileName = outputFileName
+            }
+    }
 }
 
 dependencies {
