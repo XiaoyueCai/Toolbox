@@ -331,13 +331,19 @@ suspend fun insertHRV(
             if (randomDateTime.isAfter(currentDateTime)) {
                 randomDateTime = currentDateTime
             }
-            val dateMillis = Duration.ofHours(randomDateTime.hour.toLong()).plusMinutes(randomDateTime.minute.toLong()).toMillis()
+            val dateMillis = Duration.ofHours(randomDateTime.hour.toLong())
+                .plusMinutes(randomDateTime.minute.toLong()).toMillis()
             var end = randomDateTime.toInstant(zoneOffset)
             val dailyRecordCount = Random.nextInt(minDailyRecordCount, maxDailyRecordCount + 1)
-            val minIntervalMillis = dateMillis / maxDailyRecordCount
-            val maxIntervalMillis = dateMillis / dailyRecordCount
+            val minIntervalMillis = dateMillis / (maxDailyRecordCount + 1)
+            val maxIntervalMillis = dateMillis / (dailyRecordCount + 1)
             for (j in 0 until dailyRecordCount) {
-                val time = end.minusMillis(Random.nextLong(minIntervalMillis, maxIntervalMillis))
+                val minusMillis = if (minIntervalMillis == maxIntervalMillis) {
+                    maxIntervalMillis
+                } else {
+                    Random.nextLong(minIntervalMillis, maxIntervalMillis)
+                }
+                val time = end.minusMillis(minusMillis)
                 val hrvRecord = HeartRateVariabilityRmssdRecord(
                     time = time,
                     zoneOffset = zoneOffset,
