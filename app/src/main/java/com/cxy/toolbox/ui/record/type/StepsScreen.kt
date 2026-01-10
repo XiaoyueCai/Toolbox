@@ -59,7 +59,6 @@ import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
-import java.time.ZoneOffset
 import kotlin.random.Random
 
 private const val TAG = "StepsScreen"
