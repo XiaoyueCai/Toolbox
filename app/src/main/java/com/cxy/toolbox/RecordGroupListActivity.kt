@@ -10,8 +10,8 @@ import com.cxy.toolbox.ui.theme.ToolboxTheme
 class RecordGroupListActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        super.onCreate(savedInstanceState)
         setContent {
             ToolboxTheme {
                 RecordGroupListScreen()

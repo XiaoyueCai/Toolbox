@@ -15,11 +15,11 @@ import com.cxy.toolbox.ui.theme.ToolboxTheme
 class RecordTypeActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         val type =
             IntentCompat.getParcelableExtra(intent, EXTRA_RECORD_TYPE, AppRecordType::class.java)
                 ?: AppRecordType.TYPE_STEPS
-        enableEdgeToEdge()
         setContent {
             ToolboxTheme {
                 when (type) {
