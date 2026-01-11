@@ -1,4 +1,4 @@
 /build
 /release
 /debug
-custom.gradle
+local.gradle

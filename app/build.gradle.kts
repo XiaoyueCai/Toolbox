@@ -4,9 +4,9 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.parcelize)
 }
-val customGradleFile = project.file("custom.gradle")
-if (customGradleFile.exists()) {
-    apply(from = customGradleFile)
+val localGradleFile = project.file("local.gradle")
+if (localGradleFile.exists()) {
+    apply(from = localGradleFile)
 }
 
 android {
@@ -16,7 +16,7 @@ android {
     defaultConfig {
         applicationId = "com.cxy.toolbox"
         minSdk = 28
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0.0"
 
@@ -42,20 +42,9 @@ android {
     buildFeatures {
         compose = true
     }
-
-    applicationVariants.all {
-        val variant = this
-        variant.outputs
-            .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
-            .forEach { output ->
-                val outputFileName = "Toolbox_${variant.versionName}_${variant.versionCode}-${variant.baseName}.apk"
-                output.outputFileName = outputFileName
-            }
-    }
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
